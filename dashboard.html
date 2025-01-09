@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Social Analytics Dashboard">
+    <title>AI Social Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <link rel="stylesheet" href="dashboard_style.css">
+    <script src="dashboard.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>AI Social Analytics</h1>
+            <p>Real-time engagement metrics & insights</p>
+        </header>
+
+        <div class="question-container">
+            <input type="text" 
+                   class="question-input" 
+                   placeholder="Ask a question about your social media performance..." 
+                   id="questionInput"
+                   aria-label="Ask AI a question">
+            <button class="ask-ai-btn" onclick="handleQuestion()" aria-label="Submit question">
+                <i class="fas fa-robot"></i> Ask AI
+                <div class="loading" id="loading"></div>
+            </button>
+        </div>
+
+        <div class="ai-response-area" id="aiResponseArea">
+            <div class="ai-response-header">
+                <i class="fas fa-robot"></i>
+                <h3>AI Response</h3>
+            </div>
+            <div class="ai-response-content" id="aiResponseContent">
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Engagement Rate</div>
+                <div class="stat-value" id="engagementRate">0.0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Interactions</div>
+                <div class="stat-value" id="totalInteractions">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Best Performing</div>
+                <div class="stat-value" id="bestPerforming">-</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <canvas id="postTypeBarChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="postTypeChart"></canvas>
+            </div>
+        </div>
+        <div class="insights" aria-label="Analytics Insights"><input type="text" class="search-input" placeholder="Search insights..." aria-label="Search insights">
+            <div id="insightsList"><div class="insight-item">
+                        <svg class="svg-inline--fa fa-chart-line" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chart-line" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M64 400C64 408.8 71.16 416 80 416H480C497.7 416 512 430.3 512 448C512 465.7 497.7 480 480 480H80C35.82 480 0 444.2 0 400V64C0 46.33 14.33 32 32 32C49.67 32 64 46.33 64 64V400zM342.6 278.6C330.1 291.1 309.9 291.1 297.4 278.6L240 221.3L150.6 310.6C138.1 323.1 117.9 323.1 105.4 310.6C92.88 298.1 92.88 277.9 105.4 265.4L217.4 153.4C229.9 140.9 250.1 140.9 262.6 153.4L320 210.7L425.4 105.4C437.9 92.88 458.1 92.88 470.6 105.4C483.1 117.9 483.1 138.1 470.6 150.6L342.6 278.6z"></path></svg><!-- <i class="fas fa-chart-line"></i> Font Awesome fontawesome.com -->
+                        <span>Engagement rate increased by 5.2% this week</span>
+                    </div><div class="insight-item">
+                        <svg class="svg-inline--fa fa-video" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="video" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M384 112v288c0 26.51-21.49 48-48 48h-288c-26.51 0-48-21.49-48-48v-288c0-26.51 21.49-48 48-48h288C362.5 64 384 85.49 384 112zM576 127.5v256.9c0 25.5-29.17 40.39-50.39 25.79L416 334.7V177.3l109.6-75.56C546.9 87.13 576 102.1 576 127.5z"></path></svg><!-- <i class="fas fa-video"></i> Font Awesome fontawesome.com -->
+                        <span>Reels perform 1.7x better than other content</span>
+                    </div><div class="insight-item">
+                        <svg class="svg-inline--fa fa-heart" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="heart" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M472.1 270.5l-193.1 199.7c-12.64 13.07-33.27 13.08-45.91 .0107l-193.2-199.7C-16.21 212.5-13.1 116.7 49.04 62.86C103.3 15.88 186.4 24.42 236.3 75.98l19.7 20.27l19.7-20.27c49.95-51.56 132.1-60.1 187.3-13.12C525.1 116.6 528.2 212.5 472.1 270.5z"></path></svg><!-- <i class="fas fa-heart"></i> Font Awesome fontawesome.com -->
+                        <span>Average likes per post: 552</span>
+                    </div></div>
+        </div>
+        <button class="refresh-btn" onclick="refreshDashboard()" aria-label="Refresh Dashboard">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </div>
+
+    <div id="responseMessage" class="response-message" role="alert" aria-live="polite"></div>
+
+    <script>
+        // Initialize dashboard
+        window.addEventListener('DOMContentLoaded', () => {
+            window.dashboardManager = new DashboardManager();
+        });
+
+        // Global function handlers
+        function handleQuestion() {
+            window.dashboardManager.handleQuestion();
+        }
+
+        function refreshDashboard() {
+            window.dashboardManager.updateDashboard();
+        }
+
+        
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                window.dashboardManager.updateDashboard();
+            }
+        }, 300000);
+
+        // Handle errors
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            window.dashboardManager.showResponseMessage('An error occurred. Please refresh the page.');
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            window.dashboardManager.showResponseMessage('An error occurred. Please refresh the page.');
+        });
+    </script>
+</body>
+</html>

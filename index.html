@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Analytics - Setup</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00ffff;
+            --secondary-color: #00ff9d;
+            --accent-color: #ff6b6b;
+            --bg-dark: #060714;
+            --card-bg: rgba(255, 255, 255, 0.07);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #131428 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .logo-container {
+            width: 60px;
+            height: 60px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .logo-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .logo-circle::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s linear infinite;
+        }
+
+        .logo-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            background: var(--bg-dark);
+            border-radius: 50%;
+        }
+
+        .setup-container {
+            max-width: 600px;
+            margin: 50px auto;
+        }
+
+        .setup-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: cardBorderBlink 2s infinite alternate;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 40px;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-dark);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid var(--accent-color);
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 157, 0.2);
+            border: 1px solid var(--secondary-color);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(45deg) translateX(-100%); }
+            100% { transform: rotate(45deg) translateX(100%); }
+        }
+
+        @keyframes cardBorderBlink {
+            0% { border-color: transparent; }
+            100% { border-color: var(--primary-color); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <div class="logo-inner"></div>
+            </div>
+        </div>
+
+        <div class="setup-container">
+            <div class="setup-card">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">API Configuration</h2>
+                <form id="setupForm" onsubmit="handleSetup(event)">
+                    <div class="form-group">
+                        <label>Astra DB Key</label>
+                        <input type="password" class="form-input" id="astraKey" placeholder="Enter your Astra DB key">
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword('astraKey')"></i>
+                    </div>
+
+                    <button type="submit" class="btn">Save Configuration</button>
+
+                    <div id="alertError" class="alert alert-error"></div>
+                    <div id="alertSuccess" class="alert alert-success"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function handleSetup(event) {
+            event.preventDefault();
+            
+            const astraKey = document.getElementById('astraKey').value;
+
+            if (!astraKey) {
+                showAlert('alertError', 'Please enter your Astra DB key');
+                return;
+            }
+
+            const config = {
+                astraKey,
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('analyticsConfig', JSON.stringify(config));
+            
+            showAlert('alertSuccess', 'Configuration saved successfully! Redirecting to dashboard...');
+            setTimeout(() => {
+                window.location.href = './dashboard.html';
+            }, 2000);
+        }
+
+        function showAlert(elementId, message) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        window.onload = function() {
+            const config = localStorage.getItem('analyticsConfig');
+            if (config) {
+                const parsedConfig = JSON.parse(config);
+                document.getElementById('astraKey').value = parsedConfig.astraKey;
+            }
+        }
+    </script>
+</body>
+</html>
